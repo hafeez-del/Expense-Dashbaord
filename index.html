@@ -375,6 +375,23 @@ th.n,td.n{text-align:center}
 .ttl{align-items:center}
 .pg{font-size:11px;font-weight:600;letter-spacing:.02em;color:#d9f58f;background:var(--pr);border-radius:12px;padding:3px 11px;line-height:1.5}
 
+/* footer rows */
+.bt tbody tr.sub td{background:#1d4a3a;color:#eef6e4;font-weight:600;border-bottom:0}
+.bt tbody tr.sub td:first-child{background:#1d4a3a;color:#d9f58f}
+.bt tbody tr.sub td b{color:#d9f58f}
+.bt tbody tr.sub.net td{background:#f4f6f5;color:var(--tx);border-top:1px solid var(--bd)}
+.bt tbody tr.sub.net td:first-child{background:#f4f6f5;color:var(--tx);font-weight:700}
+.bt tbody tr.sub.net td.up,.bt tbody tr.sub.net td.up b{color:#138a57}
+.bt tbody tr.sub.net td.dn,.bt tbody tr.sub.net td.dn b{color:#d23a3f}
+[data-theme="dark"] .bt tbody tr.sub.net td,[data-theme="dark"] .bt tbody tr.sub.net td:first-child{background:#1d2a25}
+
+.bt tbody tr.sub td{background:#1d4a3a!important}
+.bt tbody tr.sub td:first-child{background:#1d4a3a!important}
+.bt tbody tr.sub.net td,.bt tbody tr.sub.net td:first-child{background:#f4f6f5!important}
+[data-theme="dark"] .bt tbody tr.sub.net td,[data-theme="dark"] .bt tbody tr.sub.net td:first-child{background:#1d2a25!important}
+.bt tbody tr.sec td,.bt tbody tr.sec td:first-child{background:#f4f6f5!important;color:#6b7a73}
+[data-theme="dark"] .bt tbody tr.sec td,[data-theme="dark"] .bt tbody tr.sec td:first-child{background:#1d2a25!important;color:#9db0a6}
+
 </style>
 </head>
 <body>
@@ -764,7 +781,7 @@ function viewTable(root){
   const sp=R(totSeries(outG())),fu=R(totSeries(G.filter(g=>g.kind==='in'&&gOk(g)))),nt=fu.map((v,i)=>v-sp[i]);
   let foot='<tr class="sub"><td>Total expense</td>'+sp.map(cell).join('')+'<td class="n"><b>'+money(sum(sp))+'</b></td><td class="n">100%</td></tr>';
   if(ins.length){foot+='<tr class="sec"><td colspan="'+(labs.length+3)+'">Funding &amp; inflows</td></tr>'+ins.map(rowsFor).join('');
-    foot+='<tr class="sub"><td>Net (funding − expense)</td>'+nt.map(v=>'<td class="n" style="color:'+(v<0?'var(--bad)':'var(--ok)')+'">'+money(v)+'</td>').join('')+'<td class="n"><b style="color:'+(sum(nt)<0?'var(--bad)':'var(--ok)')+'">'+money(sum(nt))+'</b></td><td class="n"></td></tr>';}
+    foot+='<tr class="sub net"><td>Net (funding − expense)</td>'+nt.map(v=>'<td class="n '+(v<0?'dn':'up')+'">'+money(v)+'</td>').join('')+'<td class="n '+(sum(nt)<0?'dn':'up')+'"><b>'+money(sum(nt))+'</b></td><td class="n"></td></tr>';}
   const w=document.createElement('div');w.className='tw tall';
   w.innerHTML='<table class="bt"><thead><tr><th>Category</th>'+labs.map(m=>'<th class="n">'+m+'</th>').join('')+'<th class="n">Total</th><th class="n">Share</th></tr></thead><tbody>'+body+foot+'</tbody></table>';
   c.body.appendChild(w);
@@ -785,12 +802,14 @@ function render(o){
   o=o||{};const v=VIEWS.find(x=>x.id===state.view);
   $('#ptitle').textContent=v.t;$('#psub').textContent=v.sub+' · '+periodText();
   const root=$('#viewroot'),y=window.scrollY,h=root.offsetHeight;
+  const sc=o.keep?[].map.call(root.querySelectorAll('.tw,.scr'),e=>[e.scrollTop,e.scrollLeft]):[];
   if(o.keep)root.style.minHeight=h+'px';
   killCharts();TREND=null;root.innerHTML='';
   (state.view==='dash'?viewDash:viewTable)(root);
   quickChips();
+  const rs=()=>root.querySelectorAll('.tw,.scr').forEach((e,i)=>{if(sc[i]){e.scrollTop=sc[i][0];e.scrollLeft=sc[i][1];}});rs();
   if(o.top)window.scrollTo(0,0);
-  else if(o.keep){window.scrollTo(0,y);requestAnimationFrame(()=>{root.style.minHeight='';window.scrollTo(0,y);});}
+  else if(o.keep){window.scrollTo(0,y);requestAnimationFrame(()=>{root.style.minHeight='';window.scrollTo(0,y);rs();});}
 }
 $('#gq').addEventListener('input',e=>{state.q=e.target.value.trim();render({keep:true});});
 $('#theme').addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';LS.set('exp-theme',state.theme);document.documentElement.setAttribute('data-theme',state.theme);setThemeIcon();render({keep:true});});
