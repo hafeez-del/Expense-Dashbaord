@@ -392,6 +392,35 @@ th.n,td.n{text-align:center}
 .bt tbody tr.sec td,.bt tbody tr.sec td:first-child{background:#f4f6f5!important;color:#6b7a73}
 [data-theme="dark"] .bt tbody tr.sec td,[data-theme="dark"] .bt tbody tr.sec td:first-child{background:#1d2a25!important;color:#9db0a6}
 
+/* expanded group: clear container */
+.bt tr.grp.isopen td{background:#eef6ee!important;border-bottom:1px solid #c9dfcc}
+[data-theme="dark"] .bt tr.grp.isopen td{background:#1f3329!important;border-bottom-color:#2f4a3b}
+.bt tr.itm td:first-child{box-shadow:inset 3px 0 0 #1d4a3a}
+.bt tr.itm td{background:#fbfcfb!important}
+[data-theme="dark"] .bt tr.itm td{background:#17211d!important}
+.bt tr.itm.last td{border-bottom:2px solid #1d4a3a}
+.bt tr.itm:hover td{background:#f1f5f2!important}
+/* faint vertical lines */
+.bt td:not(:first-child),.bt th:not(:first-child){border-left:1px solid color-mix(in srgb,var(--bd) 55%,transparent)}
+.bt tbody tr.sub td,.bt tr.sec td{border-left-color:transparent}
+
+/* popup table: small, centred, ruled */
+.mbox .tw{overflow-x:auto}
+.mbox table{width:100%;table-layout:auto;border-collapse:separate;border-spacing:0;font-size:10.5px;font-variant-numeric:tabular-nums}
+.mbox th{background:#f4f6f5;color:#6b7a73;font-size:9px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:8px 5px;text-align:center;white-space:nowrap;border-bottom:1px solid var(--bd)}
+.mbox td{padding:7px 5px;text-align:center;font-weight:400;font-size:10.5px;color:var(--tx);border-bottom:1px solid color-mix(in srgb,var(--bd) 70%,transparent);white-space:nowrap}
+.mbox th:first-child,.mbox td:first-child{text-align:left;padding-left:12px;min-width:120px;font-weight:500;white-space:normal}
+.mbox td:not(:first-child),.mbox th:not(:first-child){border-left:1px solid color-mix(in srgb,var(--bd) 55%,transparent)}
+.mbox td b{font-weight:600}
+.mbox td:nth-last-child(2){font-weight:600}
+.mbox tr.sub td{background:#1d4a3a!important;color:#eef6e4;font-weight:600;border-bottom:0}
+.mbox tr.sub td b{color:#d9f58f}.mbox tr.sub td:first-child{color:#d9f58f}
+.mbox .mut{color:#b3beb8}
+[data-theme="dark"] .mbox th{background:#1d2a25;color:#9db0a6}
+.mbox tbody tr.sub td,.mbox tbody tr.sub td:first-child{background:#1d4a3a!important}
+.mkp{background:#f6f8f7}
+[data-theme="dark"] .mkp{background:#1d2a25}
+
 </style>
 </head>
 <body>
@@ -772,8 +801,8 @@ function viewTable(root){
   const pb=p=>p==null?'<span class="mut">–</span>':'<span class="pb"><i style="width:'+Math.min(100,Math.max(0,p*3.2)).toFixed(1)+'%"></i><b>'+p.toFixed(1)+'%</b></span>';
   const rowsFor=g=>{
     const S=R(gSeries(g)),t=sum(S),op=state.open[g.name]||(state.q&&g.items.some(i=>qOk(i.name))&&!qOk(g.name));
-    let h='<tr class="grp" data-g="'+esc(g.name)+'"><td><span class="car'+(op?' open':'')+'">'+ic('down',14)+'</span>'+esc(g.name)+'</td>'+S.map(cell).join('')+'<td class="n"><b>'+money(t)+'</b></td><td class="n">'+pb(g.kind==='out'&&ts?t/ts*100:null)+'</td></tr>';
-    if(op)gItems(g).forEach(it=>{if(state.q&&!qOk(it.name)&&!qOk(g.name))return;const s=R(itSeries(g,it)),tt=sum(s);h+='<tr class="itm"><td>'+esc(it.name)+'</td>'+s.map(cell).join('')+'<td class="n">'+money(tt)+'</td><td class="n">'+pb(g.kind==='out'&&ts?tt/ts*100:null)+'</td></tr>';});
+    let h='<tr class="grp'+(op?' isopen':'')+'" data-g="'+esc(g.name)+'"><td><span class="car'+(op?' open':'')+'">'+ic('down',14)+'</span>'+esc(g.name)+'</td>'+S.map(cell).join('')+'<td class="n"><b>'+money(t)+'</b></td><td class="n">'+pb(g.kind==='out'&&ts?t/ts*100:null)+'</td></tr>';
+    if(op){const ls=gItems(g).filter(it=>!(state.q&&!qOk(it.name)&&!qOk(g.name))),lastN=ls.length?ls[ls.length-1].name:'';ls.forEach(it=>{const s=R(itSeries(g,it)),tt=sum(s);h+='<tr class="itm'+(it.name===lastN?' last':'')+'"><td>'+esc(it.name)+'</td>'+s.map(cell).join('')+'<td class="n">'+money(tt)+'</td><td class="n">'+pb(g.kind==='out'&&ts?tt/ts*100:null)+'</td></tr>';});}
     return h;
   };
   let body=outs.slice().sort((a,b)=>sum(R(gSeries(b)))-sum(R(gSeries(a)))).map(rowsFor).join('');
